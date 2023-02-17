@@ -32,6 +32,12 @@
             <artifactId>lombok</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.gongxuanzhang</groupId>
+            <artifactId>spring-boot-time-starter</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
     </dependencies>
 
 
