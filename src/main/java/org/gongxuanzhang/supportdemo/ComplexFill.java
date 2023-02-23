@@ -1,10 +1,11 @@
 package org.gongxuanzhang.supportdemo;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.util.ListUtils;
-import com.alibaba.excel.write.handler.WorkbookWriteHandler;
-import com.alibaba.excel.write.handler.context.WorkbookWriteHandlerContext;
-import org.apache.poi.ss.usermodel.Sheet;
+import com.alibaba.excel.write.handler.SheetWriteHandler;
+import com.alibaba.excel.write.handler.context.SheetWriteHandlerContext;
+import com.alibaba.excel.write.metadata.WriteSheet;
 
 import java.io.File;
 import java.util.Date;
@@ -17,16 +18,22 @@ public class ComplexFill {
 
     public static void main(String[] args) {
         File file = new File("demo.xlsx");
-        // 分页查询数据
-        EasyExcel.write(file, DemoData.class)
-                .sheet("模板").registerWriteHandler(new WorkbookWriteHandler() {
+        try (ExcelWriter excelWriter = EasyExcel.write(file.getAbsoluteFile(), DemoData.class).build()) {
+            for (int i = 0; i < 5; i++) {
+                final int finalI = i;
+                // 每次都要创建writeSheet 这里注意必须指定sheetNo 而且sheetName必须不一样
+                WriteSheet writeSheet =
+                        EasyExcel.writerSheet(i, "模板" + i).registerWriteHandler(new SheetWriteHandler() {
                     @Override
-                    public void afterWorkbookDispose(WorkbookWriteHandlerContext context) {
-                        Sheet sheet = context.getWriteContext().writeSheetHolder().getSheet();
-                        //   这里手动合并
+                    public void afterSheetCreate(SheetWriteHandlerContext context) {
+                        System.out.println(String.format("这是第%s个sheet生成", finalI));
                     }
-                })
-                .doWrite(ComplexFill::data);
+                }).build();
+                // 分页去数据库查询数据 这里可以去数据库查询每一页的数据
+                List<DemoData> data = data();
+                excelWriter.write(data, writeSheet);
+            }
+        }
     }
 
     private static List<DemoData> data() {
