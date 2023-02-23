@@ -1,11 +1,11 @@
 package org.gongxuanzhang.supportdemo;
 
 import com.alibaba.excel.EasyExcel;
-import com.alibaba.excel.ExcelWriter;
 import com.alibaba.excel.util.ListUtils;
-import com.alibaba.excel.write.handler.SheetWriteHandler;
-import com.alibaba.excel.write.handler.context.SheetWriteHandlerContext;
-import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.handler.RowWriteHandler;
+import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
+import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
+import org.apache.poi.ss.usermodel.Row;
 
 import java.io.File;
 import java.util.Date;
@@ -18,22 +18,20 @@ public class ComplexFill {
 
     public static void main(String[] args) {
         File file = new File("demo.xlsx");
-        try (ExcelWriter excelWriter = EasyExcel.write(file.getAbsoluteFile(), DemoData.class).build()) {
-            for (int i = 0; i < 5; i++) {
-                final int finalI = i;
-                // 每次都要创建writeSheet 这里注意必须指定sheetNo 而且sheetName必须不一样
-                WriteSheet writeSheet =
-                        EasyExcel.writerSheet(i, "模板" + i).registerWriteHandler(new SheetWriteHandler() {
-                            @Override
-                            public void afterSheetCreate(SheetWriteHandlerContext context) {
-                                System.out.println(String.format("这是第%s个sheet生成", finalI));
-                            }
-                        }).build();
-                // 分页去数据库查询数据 这里可以去数据库查询每一页的数据
-                List<DemoData> data = data();
-                excelWriter.write(data, writeSheet);
-            }
-        }
+        // 分页查询数据
+        EasyExcel.write(file, DemoData.class)
+                .sheet("模板").registerWriteHandler(new RowWriteHandler() {
+                    @Override
+                    public void afterRowDispose(WriteSheetHolder writeSheetHolder, WriteTableHolder writeTableHolder,
+                                                Row row, Integer relativeRowIndex, Boolean isHead) {
+                        //  每个两个插入一个分页符
+                        if (relativeRowIndex % 2 == 1) {
+                            writeSheetHolder.getSheet().setRowBreak(relativeRowIndex);
+                        }
+
+                    }
+                })
+                .doWrite(ComplexFill::data);
     }
 
     private static List<DemoData> data() {
