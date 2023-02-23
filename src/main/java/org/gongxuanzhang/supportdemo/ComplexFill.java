@@ -24,11 +24,11 @@ public class ComplexFill {
                 // 每次都要创建writeSheet 这里注意必须指定sheetNo 而且sheetName必须不一样
                 WriteSheet writeSheet =
                         EasyExcel.writerSheet(i, "模板" + i).registerWriteHandler(new SheetWriteHandler() {
-                    @Override
-                    public void afterSheetCreate(SheetWriteHandlerContext context) {
-                        System.out.println(String.format("这是第%s个sheet生成", finalI));
-                    }
-                }).build();
+                            @Override
+                            public void afterSheetCreate(SheetWriteHandlerContext context) {
+                                System.out.println(String.format("这是第%s个sheet生成", finalI));
+                            }
+                        }).build();
                 // 分页去数据库查询数据 这里可以去数据库查询每一页的数据
                 List<DemoData> data = data();
                 excelWriter.write(data, writeSheet);
