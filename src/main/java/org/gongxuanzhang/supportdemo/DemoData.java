@@ -3,8 +3,6 @@ package org.gongxuanzhang.supportdemo;
 import com.alibaba.excel.annotation.ExcelProperty;
 import lombok.Data;
 
-import java.util.Date;
-
 
 /**
  * @author gongxuanzhang
@@ -13,9 +11,7 @@ import java.util.Date;
 public class DemoData {
     @ExcelProperty("字符串标题")
     private String string;
-    @ExcelProperty("日期标题")
-    private Date date;
-    @ExcelProperty("数字标题")
-    private Double doubleData;
+    @ExcelProperty(value = "图片", converter = StringUrlConverter.class)
+    private String url;
 
 }
