@@ -26,42 +26,18 @@ public class ComplexFill {
         File file = new File("demo.xlsx");
         // 分页查询数据
         EasyExcel.write(file, DemoData.class)
-                .sheet("模板").registerWriteHandler(new ImageListener())
+                .sheet("模板")
                 .doWrite(ComplexFill::data);
     }
 
 
-    public static class ImageListener implements WorkbookWriteHandler {
-
-
-        @Override
-        public void afterWorkbookDispose(WorkbookWriteHandlerContext context) {
-            try {
-                String resource = ComplexFill.class.getClassLoader().getResource("og-spring.png").getFile();
-                Workbook wb = context.getWriteWorkbookHolder().getWorkbook();
-                ByteArrayOutputStream byteArrayOut = new ByteArrayOutputStream();
-                // 加载图片
-                BufferedImage bufferImg = ImageIO.read(new File(resource));
-                ImageIO.write(bufferImg, "jpg", byteArrayOut);
-                Sheet sheet1 = wb.getSheetAt(0);
-                Drawing<?> patriarch = sheet1.createDrawingPatriarch();
-                XSSFClientAnchor anchor = new XSSFClientAnchor(0, 0, 0, 0, (short) 2, 2, (short) 5, 8);
-                // 插入图片
-                patriarch.createPicture(anchor, wb.addPicture(byteArrayOut.toByteArray(),
-                        XSSFWorkbook.PICTURE_TYPE_JPEG));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-    }
 
     private static List<DemoData> data() {
         List<DemoData> list = ListUtils.newArrayList();
         for (int i = 0; i < 10; i++) {
             DemoData data = new DemoData();
             data.setString("字符串" + i);
-            data.setDate(new Date());
-            data.setDoubleData(0.56);
+            data.setUrl("https://www.baidu.com/img/PCtm_d9c8750bed0b3c7d089fa7d55720d6cf.png");
             list.add(data);
         }
         return list;
