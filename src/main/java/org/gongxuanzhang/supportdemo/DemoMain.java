@@ -2,6 +2,12 @@ package org.gongxuanzhang.supportdemo;
 
 import com.alibaba.excel.EasyExcel;
 import com.alibaba.excel.util.ListUtils;
+import com.alibaba.excel.write.handler.WorkbookWriteHandler;
+import com.alibaba.excel.write.handler.context.WorkbookWriteHandlerContext;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.Date;
 import java.util.List;
@@ -13,7 +19,18 @@ public class DemoMain {
 
     public static void main(String[] args) {
         String fileName = "export.xlsx";
-        EasyExcel.write(fileName).head(head()).sheet("模板").doWrite(data());
+        EasyExcel.write(fileName).sheet("模板").registerWriteHandler(new WorkbookWriteHandler() {
+            @Override
+            public void afterWorkbookDispose(WorkbookWriteHandlerContext context) {
+                Workbook workbook = context.getWriteWorkbookHolder().getWorkbook();
+                Sheet sheetAt = workbook.getSheetAt(0);
+                for (int i = 0; i <= sheetAt.getLastRowNum(); i++) {
+                    Row row = sheetAt.getRow(i);
+                    Cell cell = row.createCell(3);
+                    cell.setCellValue("错误内容");
+                }
+            }
+        }).doWrite(data());
     }
 
     private static List<DemoData> data() {
@@ -28,42 +45,4 @@ public class DemoMain {
         return list;
     }
 
-    private static List<List<String>> head() {
-        List<List<String>> list = ListUtils.newArrayList();
-        //  一共六列
-        List<String> head0 = ListUtils.newArrayList();
-        List<String> head1 = ListUtils.newArrayList();
-        List<String> head2 = ListUtils.newArrayList();
-        List<String> head3 = ListUtils.newArrayList();
-        List<String> head4 = ListUtils.newArrayList();
-        List<String> head5 = ListUtils.newArrayList();
-        list.add(head0);
-        list.add(head1);
-        list.add(head2);
-        list.add(head3);
-        list.add(head4);
-        list.add(head5);
-        //  第一行一样
-        head0.add("都一样");
-        head1.add("都一样");
-        head2.add("都一样");
-        head3.add("都一样");
-        head4.add("都一样");
-        head5.add("都一样");
-        //  第二行 后两个一样 前面各自不同
-        head0.add("0");
-        head1.add("1");
-        head2.add("2");
-        head3.add("3");
-        head4.add("后两个一样");
-        head5.add("后两个一样");
-        //  第三行 3 4个一样 其他不同
-        head0.add("0");
-        head1.add("1");
-        head2.add("2");
-        head3.add("这两个一样");
-        head4.add("这两个一样");
-        head5.add("5");
-        return list;
-    }
 }
