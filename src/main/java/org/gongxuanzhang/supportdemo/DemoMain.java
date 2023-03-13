@@ -1,13 +1,16 @@
 package org.gongxuanzhang.supportdemo;
 
 import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.metadata.Head;
+import com.alibaba.excel.metadata.data.WriteCellData;
 import com.alibaba.excel.util.ListUtils;
-import com.alibaba.excel.write.handler.WorkbookWriteHandler;
-import com.alibaba.excel.write.handler.context.WorkbookWriteHandlerContext;
+import com.alibaba.excel.write.handler.CellWriteHandler;
+import com.alibaba.excel.write.handler.SheetWriteHandler;
+import com.alibaba.excel.write.handler.context.CellWriteHandlerContext;
+import com.alibaba.excel.write.metadata.holder.WriteSheetHolder;
+import com.alibaba.excel.write.metadata.holder.WriteTableHolder;
+import com.alibaba.excel.write.metadata.holder.WriteWorkbookHolder;
 import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
 
 import java.util.Date;
 import java.util.List;
@@ -19,16 +22,15 @@ public class DemoMain {
 
     public static void main(String[] args) {
         String fileName = "export.xlsx";
-        EasyExcel.write(fileName).sheet("模板").registerWriteHandler(new WorkbookWriteHandler() {
+        EasyExcel.write(fileName).sheet("模板").registerWriteHandler(new SheetWriteHandler() {
             @Override
-            public void afterWorkbookDispose(WorkbookWriteHandlerContext context) {
-                Workbook workbook = context.getWriteWorkbookHolder().getWorkbook();
-                Sheet sheetAt = workbook.getSheetAt(0);
-                for (int i = 0; i <= sheetAt.getLastRowNum(); i++) {
-                    Row row = sheetAt.getRow(i);
-                    Cell cell = row.createCell(3);
-                    cell.setCellValue("错误内容");
-                }
+            public void afterSheetCreate(WriteWorkbookHolder writeWorkbookHolder, WriteSheetHolder writeSheetHolder) {
+                writeSheetHolder.getSheet().protectSheet("password");
+            }
+        }).registerWriteHandler(new CellWriteHandler() {
+            @Override
+            public void afterCellDispose(CellWriteHandlerContext context) {
+                context.getCell().getCellStyle().setLocked(true);
             }
         }).doWrite(data());
     }
